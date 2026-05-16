@@ -1,66 +1,44 @@
-# Tasks: hermes-kb Vault Implementation
+# Tasks: hermes-kb Implementation
 
 ## Pre-flight Checklist
 
 Before starting, verify:
 - [ ] Fork exists: `gh repo list hata83ai-tech | grep hermes-kb`
 - [ ] Local clone exists: `ls ~/workspace/hermes-kb`
-- [ ] Upstream remote configured: `git remote -v`
-- [ ] OpenSpec CLI installed: `which openspec`
+- [ ] Upstream remote: `git remote -v`
+- [ ] OpenSpec CLI: `which openspec`
 
 ---
 
-## Phase 1: Repository Foundation
+## Phase 1: Repository Setup
 
-### Task 1.1: Configure Git Remotes
-```bash
-cd ~/workspace/hermes-kb
-git remote add upstream https://github.com/heyitsnoah/claudesidian.git
-git remote -v  # Verify: origin → hata83ai-tech/hermes-kb, upstream → heyitsnoah/claudesidian
-```
-**Verify:** Output shows both remotes correctly
-
-### Task 1.2: Verify Fork Relationship on GitHub
-```bash
-gh repo view hata83ai-tech/hermes-kb --json forkSource
-```
-**Verify:** JSON output contains `"parent"` with claudesidian URL
-
----
-
-## Phase 2: Legal Files
-
-### Task 2.1: Create LICENSE File
+### Task 1.1: Create LICENSE
 **File:** `LICENSE`
-**Content:** Standard MIT License text
 ```markdown
 MIT License
 
 Copyright (c) 2026 hata83ai-tech
+Copyright (c) 2024 heyitsnoah (for claudesidian components)
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software... [full MIT text]
+Permission is hereby granted, free of charge, to any person obtaining a copy...
 ```
 
-### Task 2.2: Create NOTICE File
+### Task 1.2: Create NOTICE
 **File:** `NOTICE`
-**Content:**
 ```markdown
 # Notice
 
-hermes-kb is forked from claudesidian by heyitsnoah/claudesidian.
+hermes-kb is derived from claudesidian by heyitsnoah/claudesidian.
 
 claudesidian is licensed under the MIT License.
 
-Original claudesidian repository: https://github.com/heyitsnoah/claudesidian
+Original: https://github.com/heyitsnoah/claudesidian
 
-This project ports claudesidian skills to Hermes Agent format.
-All ported content retains MIT License.
+All claudesidian-derived content retains MIT License.
 ```
 
-### Task 2.3: Create .gitignore
+### Task 1.3: Create .gitignore
 **File:** `.gitignore`
-**Content:**
 ```
 # OS
 .DS_Store
@@ -72,7 +50,7 @@ Thumbs.db
 *.swp
 *~
 
-# OpenSpec (user-specific)
+# OpenSpec
 .openspec.yaml
 
 # Temp
@@ -82,9 +60,9 @@ Thumbs.db
 
 ---
 
-## Phase 3: Folder Structure
+## Phase 2: Folder Structure
 
-### Task 3.1: Create PARA Folders
+### Task 2.1: Create PARA Folders
 ```bash
 cd ~/workspace/hermes-kb
 mkdir -p 00_Inbox 01_Projects 02_Areas 03_Resources 04_Archive 05_Attachments
@@ -92,148 +70,89 @@ mkdir -p 06_Metadata/Reference 06_Metadata/Templates
 mkdir -p .agents/skills
 ```
 
-### Task 3.2: Create Folder README Placeholders
-Each PARA folder needs a README so git tracks it:
+### Task 2.2: Create Folder README Placeholders
 ```bash
-echo "# Inbox - Quick capture" > 00_Inbox/README.md
-echo "# Projects - Time-bound initiatives" > 01_Projects/README.md
-echo "# Areas - Ongoing responsibilities" > 02_Areas/README.md
-echo "# Resources - Reference materials" > 03_Resources/README.md
-echo "# Archive - Completed items" > 04_Archive/README.md
-echo "# Attachments - Binary files" > 05_Attachments/README.md
-echo "# Reference - Documentation" > 06_Metadata/Reference/README.md
-echo "# Templates - Reusable templates" > 06_Metadata/Templates/README.md
+echo "# Quick capture - process regularly" > 00_Inbox/README.md
+echo "# Time-bound projects with clear outcomes" > 01_Projects/README.md
+echo "# Ongoing responsibilities" > 02_Areas/README.md
+echo "# Reference materials and topics" > 03_Resources/README.md
+echo "# Completed/inactive items" > 04_Archive/README.md
+echo "# Binary files (images, PDFs)" > 05_Attachments/README.md
+echo "# Documentation and guides" > 06_Metadata/Reference/README.md
+echo "# Reusable templates" > 06_Metadata/Templates/README.md
 echo "# Hermes Agent Skills" > .agents/skills/README.md
 ```
 
 ---
 
-## Phase 4: Skill Porting
+## Phase 3: Port 12 Skills
 
-For each skill, follow this template:
+For each skill:
+1. Read source from claudesidian
+2. Create directory
+3. Create SKILL.md with Hermes frontmatter + original content
+4. Verify YAML parses
 
-### Skill Template
-```
-Source: https://github.com/heyitsnoah/claudesidian/tree/main/.agents/skills/<name>
-Target: ~/workspace/hermes-kb/.agents/skills/<name>/SKILL.md
-```
-
-### Task 4.1: thinking-partner
+### Task 3.1: thinking-partner
 ```bash
-# Create directory
 mkdir -p ~/workspace/hermes-kb/.agents/skills/thinking-partner
-
 # Create SKILL.md with:
-# - YAML frontmatter (name, description, license, metadata)
-# - Content from claudesidian .agents/skills/thinking-partner/SKILL.md
-# - Add metadata.source: https://github.com/heyitsnoah/claudesidian
+# - Frontmatter: name, description (Use when...), license: MIT, metadata.source
+# - Body: from claudesidian .agents/skills/thinking-partner/SKILL.md
 ```
 
-### Task 4.2: systematic-debugging
-```bash
-mkdir -p ~/workspace/hermes-kb/.agents/skills/systematic-debugging
-# Create SKILL.md
-```
+### Task 3.2: systematic-debugging
+### Task 3.3: pragmatic-review
+### Task 3.4: skill-creator
+### Task 3.5: research-assistant
+### Task 3.6: daily-review
+### Task 3.7: weekly-synthesis
+### Task 3.8: inbox-processor
+### Task 3.9: add-frontmatter
+### Task 3.10: de-ai-ify
+### Task 3.11: pull-request
+### Task 3.12: release
 
-### Task 4.3: pragmatic-review
-```bash
-mkdir -p ~/workspace/hermes-kb/.agents/skills/pragmatic-review
-# Create SKILL.md
-```
+**Skill Frontmatter Template:**
+```yaml
+---
+name: <skill-name>
+description: "Use when the user [trigger]. [What it does.]"
+license: MIT
+metadata:
+  author: hermes-kb
+  version: "1.0"
+  source: https://github.com/heyitsnoah/claudesidian
+---
 
-### Task 4.4: skill-creator
-```bash
-mkdir -p ~/workspace/hermes-kb/.agents/skills/skill-creator
-# Create SKILL.md
-```
+# Skill Title
 
-### Task 4.5: research-assistant
-```bash
-mkdir -p ~/workspace/hermes-kb/.agents/skills/research-assistant
-# Create SKILL.md
-```
-
-### Task 4.6: daily-review
-```bash
-mkdir -p ~/workspace/hermes-kb/.agents/skills/daily-review
-# Create SKILL.md
-```
-
-### Task 4.7: weekly-synthesis
-```bash
-mkdir -p ~/workspace/hermes-kb/.agents/skills/weekly-synthesis
-# Create SKILL.md
-```
-
-### Task 4.8: inbox-processor
-```bash
-mkdir -p ~/workspace/hermes-kb/.agents/skills/inbox-processor
-# Create SKILL.md
-```
-
-### Task 4.9: add-frontmatter
-```bash
-mkdir -p ~/workspace/hermes-kb/.agents/skills/add-frontmatter
-# Create SKILL.md
-```
-
-### Task 4.10: de-ai-ify
-```bash
-mkdir -p ~/workspace/hermes-kb/.agents/skills/de-ai-ify
-# Create SKILL.md
-```
-
-### Task 4.11: pull-request
-```bash
-mkdir -p ~/workspace/hermes-kb/.agents/skills/pull-request
-# Create SKILL.md
-```
-
-### Task 4.12: release
-```bash
-mkdir -p ~/workspace/hermes-kb/.agents/skills/release
-# Create SKILL.md
+[Content from claudesidian with minor formatting adjustments]
 ```
 
 ---
 
-## Phase 5: Documentation
+## Phase 4: Documentation
 
-### Task 5.1: Create README.md
+### Task 4.1: Create README.md
 **File:** `README.md`
 **Sections:**
-1. Project title + description
-2. Fork attribution
-3. Features list
-4. Installation instructions
-5. Skills list
-6. PARA method overview
-7. License
+1. Title + fork attribution
+2. Features (PARA, llm-wiki, 12 skills, MarkItDown)
+3. Installation
+4. Skills list with descriptions
+5. Workflow diagram
+6. License
 
-### Task 5.2: Create SPEC.md
+### Task 4.2: Create SPEC.md
 **File:** `SPEC.md`
-**Sections:** (already created in openspec/specs/)
-
-### Task 5.3: Create CHANGELOG.md
-**File:** `CHANGELOG.md`
-```markdown
-# Changelog
-
-## [1.0.0] - YYYY-MM-DD
-
-### Added
-- Initial release
-- 12 skills ported from claudesidian
-- PARA folder structure
-- MIT License with attribution
-- NOTICE file
-```
+Copy content from `openspec/specs/hermes-kb-vault/spec.md`
 
 ---
 
-## Phase 6: Validation
+## Phase 5: Validation
 
-### Task 6.1: Validate YAML Frontmatter
+### Task 5.1: Validate YAML Frontmatter
 ```bash
 cd ~/workspace/hermes-kb
 for f in .agents/skills/*/SKILL.md; do
@@ -241,55 +160,58 @@ for f in .agents/skills/*/SKILL.md; do
 done
 ```
 
-### Task 6.2: Verify Skill Count
+### Task 5.2: Verify Skill Count
 ```bash
 ls .agents/skills/ | wc -l  # Should be 12
 ```
 
-### Task 6.3: Verify Attribution
+### Task 5.3: Verify Attribution
 ```bash
-grep -r "heyitsnoah/claudesidian" .agents/skills/*/SKILL.md | wc -l  # Should be 12
+grep -l "heyitsnoah/claudesidian" .agents/skills/*/SKILL.md | wc -l  # Should be 12
 ```
 
-### Task 6.4: Verify LICENSE and NOTICE
+### Task 5.4: Verify LICENSE and NOTICE
 ```bash
-cat LICENSE | grep -i "MIT"      # Should show MIT license
-cat NOTICE | grep "claudesidian" # Should show attribution
+grep -i "MIT" LICENSE
+grep "claudesidian" NOTICE
 ```
 
 ---
 
-## Phase 7: Publishing
+## Phase 6: Publish
 
-### Task 7.1: Stage All Files
+### Task 6.1: Stage and Commit
 ```bash
 cd ~/workspace/hermes-kb
 git add -A
-git status  # Review staged files
-```
-
-### Task 7.2: Commit
-```bash
-git commit -m "feat: initial hermes-kb vault with 12 skills
+git status
+git commit -m "feat: initial hermes-kb vault
 
 - Forked from heyitsnoah/claudesidian
-- Ported 12 skills to Hermes format
-- Added PARA folder structure
-- Added MIT LICENSE and NOTICE files
-- Closes #1
-"
+- 12 skills ported to Hermes format
+- PARA folder structure
+- MIT License with attribution
+- MarkItDown integration
+
+Closes #1"
 ```
 
-### Task 7.3: Push to GitHub
+### Task 6.2: Push
 ```bash
 git push origin main
 ```
 
-### Task 7.4: Verify GitHub Fork Relationship
+### Task 6.3: Verify Fork Relationship
 1. Go to https://github.com/hata83ai-tech/hermes-kb
-2. Verify banner shows "forked from heyitsnoah/claudesidian"
+2. Confirm banner shows "forked from heyitsnoah/claudesidian"
 
-### Task 7.5: Archive Change
+### Task 6.4: Install Skills Locally
+```bash
+cp -r ~/workspace/hermes-kb/.agents/skills/* ~/.hermes/skills/
+hermes skills list | grep -E "thinking-partner|systematic-debugging|pragmatic-review"
+```
+
+### Task 6.5: Archive Change
 ```bash
 cd ~/workspace/hermes-kb
 openspec archive design-hermes-kb-vault
@@ -306,19 +228,19 @@ openspec status
 | Skills count | `ls .agents/skills/ \| wc -l` | 12 |
 | LICENSE present | `cat LICENSE` | MIT text |
 | NOTICE present | `cat NOTICE` | claudesidian attribution |
-| All skills have YAML | Task 6.1 | No errors |
-| All skills have attribution | Task 6.3 | 12 matches |
+| All YAML valid | Task 5.1 | No errors |
+| All have attribution | Task 5.3 | 12 matches |
+| Skills load | `/skill research-assistant` | Loads successfully |
 
 ---
 
-## Rollback Plan
+## Rollback
 
-If issues occur:
 ```bash
-# Undo last commit
+# Undo commit
 git reset --soft HEAD~1
 
-# Or remove repo and start fresh
+# Or remove and start fresh
 cd ~/workspace && rm -rf hermes-kb
 gh repo delete hata83ai-tech/hermes-kb --yes
 ```

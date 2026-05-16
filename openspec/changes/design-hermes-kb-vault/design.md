@@ -1,53 +1,15 @@
-# Design: hermes-kb Vault
+# Design: hermes-kb Vault Implementation
 
-## 1. Design Decisions
+## 1. Design Decisions (Final)
 
-### 1.1 Fork Strategy
-
-**Decision:** Fork claudesidian repository, then apply customizations
-
-**Alternatives Considered:**
-| Approach | Pros | Cons |
-|----------|------|------|
-| Fork then customize | Clean fork relationship on GitHub | Must manage upstream |
-| Independent repo + attribution | Full control | Lose fork recognition |
-| Clone and republish | Simple | No GitHub fork relationship |
-
-**Selected:** Fork then customize — maintains GitHub fork relationship and proper attribution.
-
-### 1.2 Skill Porting Strategy
-
-**Decision:** Copy-paste content from claudesidian, then adapt for Hermes format
-
-**Rationale:**
-- Skills are markdown text (not code) — minimal technical adaptation needed
-- Only need to ensure Hermes-compatible frontmatter
-- Attribution preserved via metadata.source field
-
-**Adaptations Required:**
-1. Add Hermes-compatible YAML frontmatter
-2. Add `metadata.source` pointing to claudesidian
-3. No content changes (content is MIT-licensed for use)
-4. Ensure skill name uses Hermes convention (lowercase-with-hyphens)
-
-### 1.3 Folder Structure Design
-
-**Decision:** Maintain claudesidian PARA structure with hermes-kb additions
-
-**Rationale:**
-- PARA method is project-agnostic — works for any knowledge management
-- claudesidian structure is well-proven
-- Adding `.agents/skills/` for Hermes compatibility
-- Adding `openspec/` for change tracking
-
-### 1.4 License Strategy
-
-**Decision:** MIT License for hermes-kb, with NOTICE file
-
-**License Distribution:**
-- **LICENSE file:** Full MIT license text
-- **NOTICE file:** Explicit attribution to claudesidian per MIT requirement
-- **SKILL.md files:** Each includes `license: MIT` in frontmatter
+| Decision | Choice | Rationale |
+|----------|--------|-----------|
+| Knowledge system | PARA + llm-wiki (combined) | User organize + agent auto-build |
+| research-assistant | Port from claudesidian | Structured deep research |
+| Content conversion | MarkItDown | Unified tool for PDF/YT/DOCX |
+| Knowledge Freshness | DEFER | Complex, need more research |
+| Consolidator skill | DISCARD | Integrate into llm-wiki instead |
+| Login handling | DISCARD | Not needed for v1 |
 
 ---
 
@@ -57,172 +19,223 @@
 
 ```
 hermes-kb/
-├── .github/                      # GitHub config (optional)
-├── .agents/                      # Agent skills directory
-│   └── skills/                   # Hermes skills
-│       ├── <skill-1>/
-│       │   └── SKILL.md
-│       └── <skill-N>/
-│           └── SKILL.md
-├── 00_Inbox/                     # Quick capture (PARA)
-├── 01_Projects/                   # Projects (PARA)
-├── 02_Areas/                      # Areas (PARA)
-├── 03_Resources/                  # Resources (PARA)
-├── 04_Archive/                    # Archive (PARA)
-├── 05_Attachments/                # Attachments (PARA)
-├── 06_Metadata/                   # Metadata (PARA)
-│   ├── Reference/
-│   └── Templates/
-├── openspec/                      # OpenSpec change tracking
-│   ├── specs/                     # Main specs (source of truth)
-│   └── changes/                  # Change proposals
-├── LICENSE                       # MIT License
-├── NOTICE                        # Source attribution
-├── README.md                     # Installation guide
-├── SPEC.md                       # Specification document
-├── .gitignore                    # Git ignore
-└── CHANGELOG.md                   # Version history
+├── .agents/skills/              # 12 ported skills
+│   ├── thinking-partner/SKILL.md
+│   ├── systematic-debugging/SKILL.md
+│   ├── pragmatic-review/SKILL.md
+│   ├── skill-creator/SKILL.md
+│   ├── research-assistant/SKILL.md
+│   ├── daily-review/SKILL.md
+│   ├── weekly-synthesis/SKILL.md
+│   ├── inbox-processor/SKILL.md
+│   ├── add-frontmatter/SKILL.md
+│   ├── de-ai-ify/SKILL.md
+│   ├── pull-request/SKILL.md
+│   └── release/SKILL.md
+├── 00_Inbox/                    # PARA folders (empty, user creates)
+├── 01_Projects/
+├── 02_Areas/
+├── 03_Resources/
+├── 04_Archive/
+├── 05_Attachments/
+├── 06_Metadata/Reference/
+├── 06_Metadata/Templates/
+├── openspec/                    # OpenSpec change tracking
+├── LICENSE                      # MIT License
+├── NOTICE                       # Source attribution
+├── README.md                    # Installation guide
+├── SPEC.md                      # This spec
+└── .gitignore
 ```
 
-### 2.2 Skill Internal Structure
+### 2.2 Tool Integration
+
+**Built-in Hermes tools** (no installation):
+- `llm-wiki` — knowledge building
+- `search_files` — vault search
+- `web_search` — web research
+- `web_extract` — URL content extraction
+- `browser_*` — web navigation
+
+**External tool** (requires installation):
+- `markitdown` — `npm install -g markitdown`
+
+---
+
+## 3. Skill Format
+
+### 3.1 SKILL.md Structure
+
+```yaml
+---
+name: <skill-name>
+description: "Use when the user [trigger]. [What it does.]"
+license: MIT
+metadata:
+  author: hermes-kb
+  version: "1.0"
+  source: https://github.com/heyitsnoah/claudesidian
+---
+
+# Skill Title
+
+[Content following Hermes skill conventions]
+```
+
+### 3.2 Required Fields
+
+| Field | Required | Description |
+|-------|----------|-------------|
+| name | YES | lowercase-with-hyphens |
+| description | YES | Starts with "Use when the user" |
+| license | YES | MIT |
+| metadata.author | YES | hermes-kb |
+| metadata.version | YES | "1.0" |
+| metadata.source | YES | URL to claudesidian |
+
+---
+
+## 4. Workflow: Research → Store
+
+### 4.1 Content Ingestion Flow
 
 ```
-<skill-name>/
-└── SKILL.md                       # Single file per skill
-
-SKILL.md structure:
-├── YAML Frontmatter
-│   ├── name: <skill-name>
-│   ├── description: "Use when..."
-│   ├── license: MIT
-│   └── metadata:
-│       ├── author: hermes-kb
-│       ├── version: "1.0"
-│       ├── source: https://github.com/heyitsnoah/claudesidian
-│       └── ported_from: <original-name-if-renamed>
-└── Markdown Body
-    ├── # Skill Title
-    └── Content sections...
+User provides: link/pdf/YouTube/video
+        ↓
+┌─────────────────────────────┐
+│   research-assistant        │
+│   - Extract key information │
+│   - Cross-check facts       │
+│   - Structured output       │
+│     (summary, sources)      │
+└─────────────────────────────┘
+        ↓
+┌─────────────────────────────┐
+│      MarkItDown             │
+│   (if PDF/DOCX/PPTX/XLSX)   │
+│   - Convert to markdown     │
+└─────────────────────────────┘
+        ↓
+┌─────────────────────────────┐
+│      llm-wiki               │
+│   - Store analyzed info    │
+│   - Agent queries           │
+└─────────────────────────────┘
+        ↓
+┌─────────────────────────────┐
+│      PARA folders           │
+│   - User manual organize   │
+│   - Personal knowledge     │
+└─────────────────────────────┘
 ```
 
-### 2.3 GitHub Fork Relationship
+### 4.2 When to Use Each System
+
+| User says... | System | Why |
+|--------------|--------|-----|
+| "research X" | research-assistant + llm-wiki | Agent-driven deep dive |
+| "find notes about Y" | search_files | Fast grep in vault |
+| "organize my notes" | PARA folders | Human organization |
+| "what do I know about Z" | llm-wiki query | LLM-powered recall |
+| "convert this PDF" | MarkItDown | Unified conversion |
+
+---
+
+## 5. GitHub Fork Setup
+
+### 5.1 Fork Relationship
 
 ```
 Original:  heyitsnoah/claudesidian (upstream)
 Forked:    hata83ai-tech/hermes-kb (origin)
-
-After fork, configure:
-git remote add upstream https://github.com/heyitsnoah/claudesidian.git
-
-This enables:
-- git fetch upstream  (sync from original)
-- GitHub shows "forked from heyitsnoah/claudesidian"
 ```
 
----
-
-## 3. Security & Access Considerations
-
-### 3.1 No Sensitive Data
-
-- No API keys in repository
-- No passwords or secrets
-- No user-specific information
-- Public repo is safe
-
-### 3.2 File Permissions
-
-- All files:644 (readable)
-- LICENSE, NOTICE, README:644
-- Skills:644
-- .gitignore:644
-
----
-
-## 4. Quality Assurance
-
-### 4.1 Skill Validation Checklist
-
-For each skill, verify:
-
-| Check | Method |
-|-------|--------|
-| Valid YAML frontmatter | Parse with `python3 -c "import yaml..."` |
-| name field exists | `grep "^name:" SKILL.md` |
-| description starts with "Use when" | Manual check |
-| license field is MIT | `grep "license: MIT" SKILL.md` |
-| source metadata points to claudesidian | `grep "heyitsnoah/claudesidian" SKILL.md` |
-| File parses as valid markdown | `pandoc --to markdown SKILL.md` |
-
-### 4.2 Hermes Skill Loading Test
+### 5.2 Remote Configuration
 
 ```bash
-# After installing skills
-hermes skills list | grep <skill-name>  # Should appear
-/skill <skill-name>                      # Should load
+git remote add upstream https://github.com/heyitsnoah/claudesidian.git
+git remote set-url origin https://github.com/hata83ai-tech/hermes-kb.git
+```
+
+### 5.3 Verification
+
+```bash
+gh repo view hata83ai-tech/hermes-kb --json forkSource
+# Should show: {"parent": {"full_name": "heyitsnoah/claudesidian"}}
 ```
 
 ---
 
-## 5. Implementation Sequence
+## 6. Quality Assurance
 
-### Phase 1: Repository Foundation
-1. Fork claudesidian (done)
-2. Clone to local workspace
-3. Rename to hermes-kb
-4. Set upstream remote
-5. Create initial commit
+### 6.1 Skill Validation
 
-### Phase 2: Legal Files
-1. Create LICENSE (MIT text)
-2. Create NOTICE (claudesidian attribution)
-3. Verify license compatibility
+```bash
+# Check all skills have valid YAML
+for f in .agents/skills/*/SKILL.md; do
+  python3 -c "import yaml; yaml.safe_load(open('$f').read().split('---')[1])" || echo "FAIL: $f"
+done
 
-### Phase 3: Folder Structure
-1. Create PARA folders (00_Inbox through 06_Metadata)
-2. Add .gitkeep or README in each
-3. Create .agents/skills/ directory
-4. Create openspec/ structure
+# Check attribution
+grep -l "heyitsnoah/claudesidian" .agents/skills/*/SKILL.md | wc -l
+# Should return: 12
 
-### Phase 4: Skill Porting
-1. For each of 12 skills:
-   a. Read claudesidian source
-   b. Create new SKILL.md with Hermes frontmatter
-   c. Copy content (with minor formatting if needed)
-   d. Add attribution metadata
-   e. Validate YAML frontmatter
+# Check skill count
+ls .agents/skills/ | wc -l
+# Should return: 12
+```
 
-### Phase 5: Documentation
-1. Create README.md (installation instructions)
-2. Create SPEC.md (this document)
-3. Create CHANGELOG.md
+### 6.2 Hermes Skill Loading
 
-### Phase 6: Publishing
-1. Commit with meaningful message
-2. Push to origin
-3. Verify GitHub fork relationship shown
-4. Verify skills installable
+```bash
+# Verify skills visible
+hermes skills list | grep -E "thinking-partner|systematic-debugging|pragmatic-review"
+
+# Load and test
+/skill research-assistant
+```
 
 ---
 
-## 6. Risk Mitigation
+## 7. Implementation Phases
+
+| Phase | Tasks | Status |
+|-------|-------|--------|
+| 1 | Repo setup, legal files (LICENSE, NOTICE, .gitignore) | Pending |
+| 2 | Create PARA folders with README placeholders | Pending |
+| 3 | Port 12 skills from claudesidian | Pending |
+| 4 | Create README.md, SPEC.md | Pending |
+| 5 | Validate all skills | Pending |
+| 6 | Commit + push + verify fork relationship | Pending |
+
+---
+
+## 8. Dependencies
+
+| Dependency | Purpose | Installation |
+|------------|---------|---------------|
+| git | Version control | System |
+| gh CLI | GitHub operations | System |
+| openspec | Change tracking | `npm install -g @fission-ai/openspec` |
+| markitdown | Content conversion | `npm install -g markitdown` |
+
+---
+
+## 9. Deferred: Knowledge Freshness (v2)
+
+For future enhancement:
+- Confidence scoring on facts
+- Supersession tracking (update without chaos)
+- Forgetting curve (auto-clean stale)
+- Consolidation tiers (raw → established → archived)
+
+---
+
+## 10. Risks & Mitigations
 
 | Risk | Likelihood | Mitigation |
 |------|------------|------------|
-| claudesidian repo deleted | Low | Content already in our vault |
-| MIT license terms change | Low | License is perpetual for code at commit time |
-| GitHub fork limit reached | Low | Only forking from public repos we own |
-| Skills incompatible with Hermes | Low | Format is simple markdown, no code |
-| Upstream merge conflicts | Low | hermes-kb is independent, not syncing upstream |
-
----
-
-## 7. OpenSpec Artifacts
-
-| Artifact | Location | Status |
-|----------|----------|--------|
-| SPEC.md | `openspec/specs/hermes-kb-vault/spec.md` | Draft |
-| DESIGN.md | `openspec/changes/design-hermes-kb-vault/design.md` | This file |
-| TASKS.md | `openspec/changes/design-hermes-kb-vault/tasks.md` | Pending |
-
-Use `openspec status` to view overall change status.
+| claudesidian repo deleted | Low | Content already ported |
+| MIT license change | Low | License is perpetual for v1.0 |
+| Skills incompatible | Low | Simple markdown format |
+| GitHub fork limit | Low | Public repos only |
